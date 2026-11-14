@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head><body>
+<title>Asesmen CCTV Superintelligent</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: single column form on a cool-grey ground; hero carries a viewfinder frame with detection boxes. */
+:root{
+  --bg:#EEF3F6; --surface:#FFFFFF; --fg:#10202B; --muted:#4D6272; --line:#CFDAE2;
+  --accent:#0A6C8C; --accent-fg:#FFFFFF; --accent-soft:#DCEEF5; --ok:#1B7F4B; --err:#B3261E; --warn:#8A5A00;
+  --f-display:"Space Grotesk","Helvetica Neue",Arial,sans-serif;
+  --f-body:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1820; --surface:#14232D; --fg:#E6EEF3; --muted:#9DB2C0; --line:#27404F;
+  --accent:#4FC0E4; --accent-fg:#06222D; --accent-soft:#17384A; --ok:#5CD08F; --err:#FF8A80; --warn:#F0B95A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1820; --surface:#14232D; --fg:#E6EEF3; --muted:#9DB2C0; --line:#27404F;
+  --accent:#4FC0E4; --accent-fg:#06222D; --accent-soft:#17384A; --ok:#5CD08F; --err:#FF8A80; --warn:#F0B95A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--f-body);margin:0;
+  padding-block:0 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:20px;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-weight:700;font-size:17px;letter-spacing:.01em}
+.brand span{color:var(--accent)}
+.tag{font:500 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:28px;align-items:center;padding-block:12px 28px}
+.hero h1{font-size:clamp(28px,5.4vw,42px);line-height:1.08;font-weight:700;letter-spacing:-.01em}
+.hero p{color:var(--muted);margin:14px 0 0;max-width:46ch}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.facts span{font:500 12px var(--f-mono);border:1px solid var(--line);background:var(--surface);padding:5px 10px;border-radius:4px}
+.scope{width:100%;height:auto;display:block;color:var(--accent)}
+.scope .bg{fill:var(--surface);stroke:var(--line)}
+.scope .floor{stroke:var(--line);fill:none}
+.scope .box{fill:none;stroke:currentColor;stroke-width:1.6}
+.scope .lbl{fill:currentColor;font:500 9px var(--f-mono)}
+.scope .fig{fill:var(--line)}
+.scope .corner{stroke:var(--muted);stroke-width:1.5;fill:none}
+.scope .rec{fill:var(--err)}
+.scope .tc{fill:var(--muted);font:400 8px var(--f-mono)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px;margin-top:16px}
+.card h2{font-size:20px;display:flex;gap:10px;align-items:baseline}
+.card h2 small{font:500 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.card .sub{color:var(--muted);margin:4px 0 20px;font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid .full{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+label,.legend{font-weight:500;font-size:14px}
+.req{color:var(--err)}
+.hint{font-size:13px;color:var(--muted);margin-top:-2px}
+input[type=text],input[type=email],input[type=tel],select,textarea{
+  width:100%;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-height:44px}
+textarea{min-height:110px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.opt:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.field.bad input,.field.bad select{border-color:var(--err)}
+.msg{color:var(--err);font-size:13px;min-height:0}
+fieldset{border:0;padding:0;margin:0;min-width:0}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.opt span{display:block;border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:9px 14px;font-size:14px;min-height:40px}
+.opt input:checked + span{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
+.det{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.det .opt span{height:100%}
+.counter{margin-left:auto;font:500 12px var(--f-mono);color:var(--muted)}
+.head-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.notice{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 14px;border-radius:0 6px 6px 0;font-size:14px;margin-top:14px}
+.consent{display:flex;gap:12px;align-items:flex-start;margin-top:16px;font-size:14px}
+.consent input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--accent)}
+.submit{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:22px}
+button.go{font:600 16px var(--f-display);background:var(--accent);color:var(--accent-fg);border:0;border-radius:6px;padding:13px 26px;min-height:48px;cursor:pointer}
+button.go:hover{filter:brightness(1.08)}
+button.go[disabled]{opacity:.6;cursor:wait}
+.submit .err{color:var(--err);font-size:14px}
+.preview{margin-top:16px;border:1px dashed var(--warn);color:var(--warn);border-radius:6px;padding:10px 14px;font-size:13px}
+.done{text-align:center;padding:48px 24px}
+.done .tick{width:56px;height:56px;border-radius:50%;background:var(--accent-soft);color:var(--ok);display:grid;place-items:center;margin:0 auto 16px;font-size:28px}
+.done h2{font-size:26px;justify-content:center}
+.done p{color:var(--muted);max-width:46ch;margin:10px auto 0}
+.foot{margin-top:28px;font-size:13px;color:var(--muted)}
+.hp{position:absolute;left:-9999px;height:0;overflow:hidden}
+@media (max-width:640px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.card{padding:18px}}
+@media (prefers-reduced-motion:no-preference){.scope .box{animation:pulse 3.2s ease-in-out infinite}.scope .rec{animation:blink 1.6s steps(2,start) infinite}}
+@keyframes pulse{50%{opacity:.55}}@keyframes blink{50%{opacity:0}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Gandrung <span>Media</span> Corp</div>
+    <div class="tag">Asesmen Pelanggan</div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h1>Ceritakan kebutuhan CCTV Anda. Kami siapkan rekomendasi awalnya.</h1>
+      <p>Isian singkat sekitar 5 menit untuk membantu tim Gandrung Media Corp memahami lokasi, jumlah kamera, dan deteksi AI yang Anda perlukan pada produk Superintelligent CCTV.</p>
+      <div class="facts"><span>± 5 menit</span><span>Tanpa biaya</span><span>Sesuai UU PDP</span></div>
+    </div>
+    <svg class="scope" viewBox="0 0 320 220" role="img" aria-label="Ilustrasi pandangan kamera dengan kotak deteksi orang dan kendaraan">
+      <rect class="bg" x="1" y="1" width="318" height="218" rx="8"/>
+      <path class="floor" d="M1 150 L319 150 M60 150 L20 219 M160 150 L160 219 M260 150 L300 219"/>
+      <rect class="fig" x="70" y="96" width="16" height="54" rx="8"/><circle class="fig" cx="78" cy="88" r="8"/>
+      <rect class="fig" x="196" y="104" width="14" height="46" rx="7"/><circle class="fig" cx="203" cy="97" r="7"/>
+      <rect class="fig" x="236" y="124" width="62" height="26" rx="6"/>
+      <rect class="box" x="62" y="76" width="32" height="78"/><text class="lbl" x="62" y="70">ORANG 0.97</text>
+      <rect class="box" x="188" y="86" width="30" height="68"/><text class="lbl" x="188" y="80">ORANG 0.94</text>
+      <rect class="box" x="230" y="114" width="74" height="40"/><text class="lbl" x="230" y="108">MOBIL 0.99</text>
+      <path class="corner" d="M14 30 V14 H30 M290 14 H306 V30 M14 190 V206 H30 M290 206 H306 V190"/>
+      <circle class="rec" cx="26" cy="26" r="4"/><text class="tc" x="36" y="29">CH-04 · 14:02:37</text>
+    </svg>
+  </section>
+
+  <form id="f" name="asesmen-cctv" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+    <input type="hidden" name="form-name" value="asesmen-cctv">
+    <p class="hp"><label>Jangan diisi <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+
+    <section class="card">
+      <h2><small>Bagian 1</small>Profil &amp; Kontak</h2>
+      <p class="sub">Siapa Anda dan di mana solusi akan dipasang.</p>
+      <div class="grid">
+        <div class="field full"><label for="perusahaan">Nama perusahaan / instansi <span class="req">*</span></label>
+          <input id="perusahaan" name="perusahaan" type="text" autocomplete="organization" required><div class="msg"></div></div>
+        <div class="field full"><label for="industri">Industri / sektor <span class="req">*</span></label>
+          <select id="industri" name="industri" required>
+            <option value="">Pilih industri</option>
+            <option>Manufaktur / Pabrik</option><option>Rumah Sakit / Fasilitas Kesehatan</option>
+            <option>Perkantoran / Building Management</option><option>Retail / Mall</option>
+            <option>Hotel &amp; Hospitality</option><option>Pendidikan</option>
+            <option>Pemerintahan / Smart City</option><option>Logistik / Pergudangan</option>
+            <option>Perkebunan</option><option>Pertambangan</option>
+            <option>Perbankan / Keuangan</option><option>Media &amp; Penyiaran</option><option>Lainnya</option>
+          </select><div class="msg"></div></div>
+        <div class="field"><label for="pic">Nama PIC <span class="req">*</span></label>
+          <input id="pic" name="pic" type="text" autocomplete="name" required><div class="msg"></div></div>
+        <div class="field"><label for="jabatan">Jabatan / divisi</label>
+          <input id="jabatan" name="jabatan" type="text" autocomplete="organization-title"></div>
+        <div class="field"><label for="wa">No. WhatsApp <span class="req">*</span></label>
+          <input id="wa" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="08xx xxxx xxxx" required><div class="msg"></div></div>
+        <div class="field"><label for="email">Email kantor <span class="req">*</span></label>
+          <input id="email" name="email" type="email" autocomplete="email" required><div class="msg"></div></div>
+        <div class="field"><label for="kota">Kota / kabupaten lokasi</label>
+          <input id="kota" name="kota" type="text" autocomplete="address-level2"></div>
+        <div class="field"><label for="provinsi">Provinsi</label>
+          <input id="provinsi" name="provinsi" type="text" autocomplete="address-level1"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><small>Bagian 2</small>Gambaran Kebutuhan</h2>
+      <p class="sub">Skala, tujuan, dan kondisi sistem CCTV yang ada.</p>
+      <div class="grid">
+        <fieldset class="field full" id="g-kamera"><div class="legend">Berapa kamera yang ingin dianalisa AI? <span class="req">*</span></div>
+          <div class="hint">Menentukan kapasitas perangkat yang kami rekomendasikan.</div>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="jumlah_kamera" value="1-8"><span>1–8 kamera</span></label>
+            <label class="opt"><input type="radio" name="jumlah_kamera" value="9-16"><span>9–16 kamera</span></label>
+            <label class="opt"><input type="radio" name="jumlah_kamera" value="17-32"><span>17–32 kamera</span></label>
+            <label class="opt"><input type="radio" name="jumlah_kamera" value=">32"><span>Lebih dari 32</span></label>
+            <label class="opt"><input type="radio" name="jumlah_kamera" value="belum tahu"><span>Belum tahu</span></label>
+          </div><div class="msg"></div></fieldset>
+        <fieldset class="field full"><div class="legend">Tujuan utama</div><div class="hint">Boleh pilih lebih dari satu.</div>
+          <div class="opts">
+            <label class="opt"><input type="checkbox" name="tujuan" value="Keamanan"><span>Keamanan</span></label>
+            <label class="opt"><input type="checkbox" name="tujuan" value="K3"><span>Keselamatan kerja (K3)</span></label>
+            <label class="opt"><input type="checkbox" name="tujuan" value="Loss prevention"><span>Pencegahan kehilangan</span></label>
+            <label class="opt"><input type="checkbox" name="tujuan" value="Produktivitas"><span>Produktivitas &amp; disiplin</span></label>
+            <label class="opt"><input type="checkbox" name="tujuan" value="Analitik pengunjung"><span>Analitik pengunjung</span></label>
+            <label class="opt"><input type="checkbox" name="tujuan" value="Audit"><span>Kepatuhan / audit</span></label>
+            <label class="opt"><input type="checkbox" name="tujuan" value="Kebakaran"><span>Proteksi kebakaran</span></label>
+            <label class="opt"><input type="checkbox" name="tujuan" value="Parkir"><span>Parkir &amp; kendaraan</span></label>
+          </div></fieldset>
+        <fieldset class="field"><div class="legend">Jenis kamera terpasang</div>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="jenis_kamera" value="IP"><span>IP camera</span></label>
+            <label class="opt"><input type="radio" name="jenis_kamera" value="Analog"><span>Analog</span></label>
+            <label class="opt"><input type="radio" name="jenis_kamera" value="Campuran"><span>Campuran</span></label>
+            <label class="opt"><input type="radio" name="jenis_kamera" value="Belum ada"><span>Belum ada</span></label>
+          </div></fieldset>
+        <div class="field"><label for="vms">Merek NVR / VMS saat ini</label>
+          <input id="vms" name="merek_vms" type="text" placeholder="Contoh: Hikvision, Dahua, Milestone"></div>
+        <fieldset class="field full"><div class="legend">Rencana implementasi</div>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="rencana" value="< 1 bulan"><span>Kurang dari 1 bulan</span></label>
+            <label class="opt"><input type="radio" name="rencana" value="1-3 bulan"><span>1–3 bulan</span></label>
+            <label class="opt"><input type="radio" name="rencana" value="3-6 bulan"><span>3–6 bulan</span></label>
+            <label class="opt"><input type="radio" name="rencana" value="Masih evaluasi"><span>Masih evaluasi</span></label>
+          </div></fieldset>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><small>Bagian 3</small>Pilih Deteksi AI</h2>
+      <div class="head-row"><p class="sub" style="margin-bottom:14px">Centang deteksi yang Anda butuhkan. Bisa lebih dari satu.</p><span class="counter" id="count" aria-live="polite">0 dipilih</span></div>
+      <div class="det" id="det"><label class="opt"><input type="checkbox" name="deteksi" value="Intrusi area terlarang"><span>Intrusi area terlarang</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Garis virtual (tripwire)"><span>Garis virtual (tripwire)</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Loitering / berkeliaran"><span>Loitering / berkeliaran</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Penghitungan orang"><span>Penghitungan orang</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Kepadatan kerumunan"><span>Kepadatan kerumunan</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Pengenalan wajah"><span>Pengenalan wajah</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Kepatuhan APD (helm, rompi)"><span>Kepatuhan APD (helm, rompi)</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Deteksi orang jatuh"><span>Deteksi orang jatuh</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Deteksi api & asap"><span>Deteksi api &amp; asap</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Pembaca plat nomor (ANPR)"><span>Pembaca plat nomor (ANPR)</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Parkir sembarangan"><span>Parkir sembarangan</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Barang tertinggal / hilang"><span>Barang tertinggal / hilang</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Merokok di area terlarang"><span>Merokok di area terlarang</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Penggunaan ponsel"><span>Penggunaan ponsel</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Orang tidak di pos"><span>Orang tidak di pos</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Heatmap pengunjung"><span>Heatmap pengunjung</span></label></div>
+    </section>
+
+    <section class="card">
+      <h2><small>Bagian 4</small>Kebutuhan Khusus</h2>
+      <p class="sub">Ada kombinasi tertentu atau deteksi di luar daftar? Tuliskan di sini.</p>
+      <div class="field"><label for="khusus">Uraian kebutuhan khusus</label>
+        <textarea id="khusus" name="kebutuhan_khusus" placeholder="Contoh: deteksi orang masuk area studio saat lampu merah menyala, kondisi cahaya rendah di gudang malam hari."></textarea></div>
+    </section>
+
+    <section class="card">
+      <h2><small>Bagian 5</small>Topologi &amp; Persetujuan</h2>
+      <p class="sub">Opsional, tetapi mempercepat penyusunan rekomendasi.</p>
+      <fieldset class="field"><div class="legend">Bersedia berbagi denah / topologi CCTV?</div>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="topologi" value="Ya, sekarang"><span>Ya, sekarang</span></label>
+          <label class="opt"><input type="radio" name="topologi" value="Setelah NDA"><span>Setelah NDA</span></label>
+          <label class="opt"><input type="radio" name="topologi" value="Belum / tidak"><span>Belum / tidak</span></label>
+        </div></fieldset>
+      <div class="notice"><strong>Kerahasiaan.</strong> Topologi CCTV bersifat sensitif. Berbagi denah bersifat opsional dan dapat dilakukan setelah NDA ditandatangani kedua pihak.</div>
+      <div class="notice">Data pribadi Anda diproses sesuai UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi.</div>
+      <div class="field" id="g-setuju">
+        <label class="consent"><input id="setuju" type="checkbox" name="persetujuan" value="ya" required>
+          <span>Saya menyetujui data yang saya isi digunakan oleh <strong>Gandrung Media Corp</strong> untuk menyusun rekomendasi solusi dan penawaran, serta bersedia dihubungi melalui kontak di atas. <span class="req">*</span></span></label>
+        <div class="msg"></div></div>
+      <div class="submit">
+        <button class="go" type="submit" id="btn">Kirim Asesmen</button>
+        <span class="err" id="err" role="alert"></span>
+      </div>
+      <div class="preview" id="preview" hidden>Mode pratinjau: halaman ini belum terhubung ke tujuan pengiriman, jadi data yang diisi tidak dikirim ke mana pun.</div>
+    </section>
+  </form>
+
+  <section class="card done" id="done" hidden>
+    <div class="tick" aria-hidden="true">✓</div>
+    <h2>Terima kasih!</h2>
+    <p>Asesmen Anda sudah kami terima. Tim Gandrung Media Corp akan menghubungi Anda lewat WhatsApp atau email yang Anda isi untuk langkah berikutnya.</p>
+  </section>
+
+  <p class="foot">Gandrung Media Corp · Asesmen pelanggan Superintelligent CCTV</p>
+</div>
+
+<script>
+(function(){
+  /* Tujuan pengiriman data. "/" = Netlify Forms (halaman ini di-deploy ke Netlify).
+     Isi dengan URL webhook untuk tujuan lain. Kosong = mode pratinjau, tidak mengirim. */
+  var SUBMIT_URL = "https://script.google.com/macros/s/AKfycby1B2x5H0Xks5yPfv5Qx2YJ-CUb3w5fjJPEuCKdU9iP069MG2_vx-sAD4NiyK8kgqEf/exec";
+
+  var det = document.getElementById("det");
+  var count = document.getElementById("count");
+  det.addEventListener("change", function(){
+    count.textContent = det.querySelectorAll("input:checked").length + " dipilih";
+  });
+
+  var f = document.getElementById("f"), btn = document.getElementById("btn"), err = document.getElementById("err");
+  if(!SUBMIT_URL) document.getElementById("preview").hidden = false;
+
+  function setBad(el, text){
+    var g = el.closest(".field"); if(!g) return;
+    g.classList.toggle("bad", !!text);
+    var m = g.querySelector(".msg"); if(m) m.textContent = text || "";
+  }
+  function validate(){
+    var ok = true, first = null;
+    function fail(el, t){ setBad(el, t); if(!first) first = el; ok = false; }
+    ["perusahaan","industri","pic"].forEach(function(id){
+      var el = document.getElementById(id);
+      if(!el.value.trim()) fail(el, "Wajib diisi."); else setBad(el, "");
+    });
+    var wa = document.getElementById("wa"), digits = wa.value.replace(/\D/g,"");
+    if(digits.length < 9 || digits.length > 15) fail(wa, "Isi nomor WhatsApp yang valid, misalnya 0812 3456 7890."); else setBad(wa,"");
+    var em = document.getElementById("email");
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())) fail(em, "Isi alamat email yang valid."); else setBad(em,"");
+    var cam = f.querySelector('input[name=jumlah_kamera]:checked'), gk = document.getElementById("g-kamera");
+    if(!cam){ gk.classList.add("bad"); gk.querySelector(".msg").textContent = "Pilih salah satu."; if(!first) first = gk.querySelector("input"); ok = false; }
+    else { gk.classList.remove("bad"); gk.querySelector(".msg").textContent = ""; }
+    var st = document.getElementById("setuju");
+    if(!st.checked) fail(st, "Centang persetujuan agar kami dapat memproses data Anda."); else setBad(st,"");
+    if(first && first.focus) first.focus();
+    return ok;
+  }
+
+  f.addEventListener("submit", function(e){
+    e.preventDefault(); err.textContent = "";
+    if(!validate()) return;
+    function finish(){ f.hidden = true; var d = document.getElementById("done"); d.hidden = false; d.scrollIntoView({block:"start"}); }
+    if(!SUBMIT_URL){ finish(); return; }
+    btn.disabled = true; btn.textContent = "Mengirim…";
+    var data = {};
+    new FormData(f).forEach(function(v,k){
+      if(data[k] === undefined) data[k] = v;
+      else data[k] = [].concat(data[k], v);
+    });
+    fetch(SUBMIT_URL, {method:"POST", headers:{"Content-Type":"text/plain"}, body: JSON.stringify(data), mode:"no-cors"}).then(function(){
+      finish();
+    }).catch(function(e){
+      console.error(e); err.textContent = "Terjadi kesalahan saat mengirim. Silakan coba lagi.";
+    }).finally(function(){
+      btn.disabled = false; btn.textContent = "Kirim Asesmen";
+    });
+  });
+})();
+</script>
+
+</body></html>
