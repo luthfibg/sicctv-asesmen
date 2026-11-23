@@ -53,7 +53,7 @@ h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0}
 label,.legend{font-weight:500;font-size:14px}
 .req{color:var(--err)}
 .hint{font-size:13px;color:var(--muted);margin-top:-2px}
-input[type=text],input[type=email],input[type=tel],select,textarea{
+input[type=text],input[type=email],input[type=tel],input[type=search],select,textarea{
   width:100%;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-height:44px}
 textarea{min-height:110px;resize:vertical}
 input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.opt:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
@@ -66,8 +66,20 @@ fieldset{border:0;padding:0;margin:0;min-width:0}
 .opt span{display:block;border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:9px 14px;font-size:14px;min-height:40px}
 .opt input:checked + span{background:var(--accent-soft);border-color:var(--accent);color:var(--fg);box-shadow:inset 0 0 0 1px var(--accent)}
 .opt input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
-.det{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.det{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .det .opt span{height:100%}
+.toolbar{display:flex;gap:10px;align-items:center}
+.toolbar .cari{flex:1;min-width:0}
+.toolbar .counter{margin-left:0;white-space:nowrap;border:1px solid var(--line);background:var(--accent-soft);padding:8px 12px;border-radius:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
+.chip{font:500 13px var(--f-body);color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:7px 14px;min-height:36px;cursor:pointer}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--fg)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.seg{margin-top:18px}
+.seg-h{display:flex;align-items:center;gap:10px;font:500 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.seg-h::after{content:"";flex:1;height:1px;background:var(--line);order:3}
+.seg-h b{font-weight:500;color:var(--muted);order:2}
+.empty{color:var(--muted);font-size:14px;margin:18px 0 0}
 .counter{margin-left:auto;font:500 12px var(--f-mono);color:var(--muted)}
 .head-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .notice{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 14px;border-radius:0 6px 6px 0;font-size:14px;margin-top:14px}
@@ -85,7 +97,7 @@ button.go[disabled]{opacity:.6;cursor:wait}
 .done p{color:var(--muted);max-width:46ch;margin:10px auto 0}
 .foot{margin-top:28px;font-size:13px;color:var(--muted)}
 .hp{position:absolute;left:-9999px;height:0;overflow:hidden}
-@media (max-width:640px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.card{padding:18px}}
+@media (max-width:640px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.det{grid-template-columns:1fr}.toolbar{flex-wrap:wrap}.toolbar .cari{flex-basis:100%}.card{padding:18px}}
 @media (prefers-reduced-motion:no-preference){.scope .box{animation:pulse 3.2s ease-in-out infinite}.scope .rec{animation:blink 1.6s steps(2,start) infinite}}
 @keyframes pulse{50%{opacity:.55}}@keyframes blink{50%{opacity:0}}
 </style>
@@ -99,7 +111,7 @@ button.go[disabled]{opacity:.6;cursor:wait}
   <section class="hero">
     <div>
       <h1>Ceritakan kebutuhan CCTV Anda. Kami siapkan rekomendasi awalnya.</h1>
-      <p>Isian singkat sekitar 5 menit untuk membantu tim Gandrung Media Corp memahami lokasi, jumlah kamera, dan deteksi AI yang Anda perlukan pada produk Superintelligent CCTV.</p>
+      <p>Isian singkat sekitar 5 menit untuk membantu tim Gandrung Media Corp memahami lokasi, jumlah kamera, dan algoritma AI yang Anda perlukan pada produk Superintelligent CCTV.</p>
       <div class="facts"><span>± 5 menit</span><span>Tanpa biaya</span><span>Sesuai UU PDP</span></div>
     </div>
     <svg class="scope" viewBox="0 0 320 220" role="img" aria-label="Ilustrasi pandangan kamera dengan kotak deteksi orang dan kendaraan">
@@ -195,9 +207,15 @@ button.go[disabled]{opacity:.6;cursor:wait}
     </section>
 
     <section class="card">
-      <h2><small>Bagian 3</small>Pilih Deteksi AI</h2>
-      <div class="head-row"><p class="sub" style="margin-bottom:14px">Centang deteksi yang Anda butuhkan. Bisa lebih dari satu.</p><span class="counter" id="count" aria-live="polite">0 dipilih</span></div>
-      <div class="det" id="det"><label class="opt"><input type="checkbox" name="deteksi" value="Intrusi area terlarang"><span>Intrusi area terlarang</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Garis virtual (tripwire)"><span>Garis virtual (tripwire)</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Loitering / berkeliaran"><span>Loitering / berkeliaran</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Penghitungan orang"><span>Penghitungan orang</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Kepadatan kerumunan"><span>Kepadatan kerumunan</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Pengenalan wajah"><span>Pengenalan wajah</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Kepatuhan APD (helm, rompi)"><span>Kepatuhan APD (helm, rompi)</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Deteksi orang jatuh"><span>Deteksi orang jatuh</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Deteksi api & asap"><span>Deteksi api &amp; asap</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Pembaca plat nomor (ANPR)"><span>Pembaca plat nomor (ANPR)</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Parkir sembarangan"><span>Parkir sembarangan</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Barang tertinggal / hilang"><span>Barang tertinggal / hilang</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Merokok di area terlarang"><span>Merokok di area terlarang</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Penggunaan ponsel"><span>Penggunaan ponsel</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Orang tidak di pos"><span>Orang tidak di pos</span></label><label class="opt"><input type="checkbox" name="deteksi" value="Heatmap pengunjung"><span>Heatmap pengunjung</span></label></div>
+      <h2><small>Bagian 3</small>Pilih algoritma AI</h2>
+      <p class="sub" style="margin-bottom:14px">Centang algoritma yang Anda butuhkan dari 54 algoritma yang tersedia. Bisa dipilih banyak.</p>
+      <div class="toolbar">
+        <input id="cari" type="search" class="cari" placeholder="Cari algoritma… (mis. helm, api, plat nomor)" aria-label="Cari algoritma" autocomplete="off">
+        <span class="counter" id="count" aria-live="polite">0 dipilih</span>
+      </div>
+      <div class="chips" role="group" aria-label="Filter segmen"><button type="button" class="chip on" data-f="all" aria-pressed="true">Semua (54)</button><button type="button" class="chip" data-f="0" aria-pressed="false">Target Analytics</button><button type="button" class="chip" data-f="1" aria-pressed="false">Personnel Management</button><button type="button" class="chip" data-f="2" aria-pressed="false">Vehicle Management</button><button type="button" class="chip" data-f="3" aria-pressed="false">Environmental Monitoring</button></div>
+      <div id="algos"><div class="seg" data-seg="0"><div class="seg-h"><span>Target Analytics</span><b>7</b></div><div class="det"><label class="opt algo" data-k="kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Vehicle Detection"><span>Vehicle Detection</span></label><label class="opt algo" data-k="wajah"><input type="checkbox" name="algoritma" value="Facial Capture"><span>Facial Capture</span></label><label class="opt algo" data-k="kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Non-motor Vehicle Driving Detection"><span>Non-motor Vehicle Driving Detection</span></label><label class="opt algo" data-k="pejalan kaki orang"><input type="checkbox" name="algoritma" value="Pedestrian Detection"><span>Pedestrian Detection</span></label><label class="opt algo" data-k="rokok asap"><input type="checkbox" name="algoritma" value="Smoking Detection"><span>Smoking Detection</span></label><label class="opt algo" data-k="kerumunan"><input type="checkbox" name="algoritma" value="Crowd Gathering Detection"><span>Crowd Gathering Detection</span></label><label class="opt algo" data-k="masker"><input type="checkbox" name="algoritma" value="No Mask Detection"><span>No Mask Detection</span></label></div></div><div class="seg" data-seg="1"><div class="seg-h"><span>Personnel Management</span><b>13</b></div><div class="det"><label class="opt algo" data-k="jatuh"><input type="checkbox" name="algoritma" value="Fall Detection"><span>Fall Detection</span></label><label class="opt algo" data-k="pejalan kaki orang"><input type="checkbox" name="algoritma" value="Pedestrian Traffic Statistics"><span>Pedestrian Traffic Statistics</span></label><label class="opt algo" data-k="helm"><input type="checkbox" name="algoritma" value="No Helmet Detection"><span>No Helmet Detection</span></label><label class="opt algo" data-k="intrusi masuk"><input type="checkbox" name="algoritma" value="Intrusion Detection"><span>Intrusion Detection</span></label><label class="opt algo" data-k="absen"><input type="checkbox" name="algoritma" value="Absenteeism Detection"><span>Absenteeism Detection</span></label><label class="opt algo" data-k="tidur"><input type="checkbox" name="algoritma" value="Sleep on Duty Detection"><span>Sleep on Duty Detection</span></label><label class="opt algo" data-k=""><input type="checkbox" name="algoritma" value="Personnel Stay Duration"><span>Personnel Stay Duration</span></label><label class="opt algo" data-k="berkeliaran"><input type="checkbox" name="algoritma" value="Lingering Detection"><span>Lingering Detection</span></label><label class="opt algo" data-k="ponsel hp"><input type="checkbox" name="algoritma" value="Mobile Phone Detection"><span>Mobile Phone Detection</span></label><label class="opt algo" data-k="wajah"><input type="checkbox" name="algoritma" value="Face Recognition"><span>Face Recognition</span></label><label class="opt algo" data-k=""><input type="checkbox" name="algoritma" value="High-Visibility Clothing Non-Wearing Detection"><span>High-Visibility Clothing Non-Wearing Detection</span></label><label class="opt algo" data-k="seragam"><input type="checkbox" name="algoritma" value="Uniform Recognition"><span>Uniform Recognition</span></label><label class="opt algo" data-k=""><input type="checkbox" name="algoritma" value="Distress Signal Detection"><span>Distress Signal Detection</span></label></div></div><div class="seg" data-seg="2"><div class="seg-h"><span>Vehicle Management</span><b>23</b></div><div class="det"><label class="opt algo" data-k="parkir"><input type="checkbox" name="algoritma" value="Illegal Parking Detection of Shared Bicycles"><span>Illegal Parking Detection of Shared Bicycles</span></label><label class="opt algo" data-k=""><input type="checkbox" name="algoritma" value="Large Bus Nighttime Driving Ban Detection"><span>Large Bus Nighttime Driving Ban Detection</span></label><label class="opt algo" data-k="kendaraan mobil motor intrusi masuk"><input type="checkbox" name="algoritma" value="Motor Vehicle Intrusion Detection"><span>Motor Vehicle Intrusion Detection</span></label><label class="opt algo" data-k="kendaraan mobil motor macet"><input type="checkbox" name="algoritma" value="Traffic Congestion Detection of Motor Vehicles"><span>Traffic Congestion Detection of Motor Vehicles</span></label><label class="opt algo" data-k="kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Motor Vehicle Reverse Driving Detection"><span>Motor Vehicle Reverse Driving Detection</span></label><label class="opt algo" data-k=""><input type="checkbox" name="algoritma" value="Failure To Yield Detection"><span>Failure To Yield Detection</span></label><label class="opt algo" data-k="parkir kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Illegal Parking Detection of Motor Vehicles"><span>Illegal Parking Detection of Motor Vehicles</span></label><label class="opt algo" data-k="kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Electric Vehicle Entry into Elevator Detection"><span>Electric Vehicle Entry into Elevator Detection</span></label><label class="opt algo" data-k="helm kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Electric Vehicle Helmet Non-Wearing Detection"><span>Electric Vehicle Helmet Non-Wearing Detection</span></label><label class="opt algo" data-k="kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Electric Vehicle Red Light Violation Capture"><span>Electric Vehicle Red Light Violation Capture</span></label><label class="opt algo" data-k="kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Vehicle Traffic Statistics"><span>Vehicle Traffic Statistics</span></label><label class="opt algo" data-k="kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Emergency Vehicle Capture"><span>Emergency Vehicle Capture</span></label><label class="opt algo" data-k=""><input type="checkbox" name="algoritma" value="Solid Line U-turn Detection"><span>Solid Line U-turn Detection</span></label><label class="opt algo" data-k="kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Inspection of Large Construction Vehicles"><span>Inspection of Large Construction Vehicles</span></label><label class="opt algo" data-k="kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Heavy Vehicle Detection"><span>Heavy Vehicle Detection</span></label><label class="opt algo" data-k=""><input type="checkbox" name="algoritma" value="Food Delivery Rider Detection"><span>Food Delivery Rider Detection</span></label><label class="opt algo" data-k="kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Non-vehicle Wrong-way Driving Detection"><span>Non-vehicle Wrong-way Driving Detection</span></label><label class="opt algo" data-k="kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Electric Vehicle Passenger Detection"><span>Electric Vehicle Passenger Detection</span></label><label class="opt algo" data-k="parkir kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Non-Motor Vehicle Illegal Parking Detection"><span>Non-Motor Vehicle Illegal Parking Detection</span></label><label class="opt algo" data-k="plat nomor"><input type="checkbox" name="algoritma" value="License Plate Recognition"><span>License Plate Recognition</span></label><label class="opt algo" data-k="kendaraan mobil motor intrusi masuk"><input type="checkbox" name="algoritma" value="Non-motor Vehicle Intrusion Detection"><span>Non-motor Vehicle Intrusion Detection</span></label><label class="opt algo" data-k="kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Detection of Unenclosed Vehicle Cargo Compartment"><span>Detection of Unenclosed Vehicle Cargo Compartment</span></label><label class="opt algo" data-k="kendaraan mobil motor"><input type="checkbox" name="algoritma" value="Hazardous Materials Vehicle Nighttime"><span>Hazardous Materials Vehicle Nighttime</span></label></div></div><div class="seg" data-seg="3"><div class="seg-h"><span>Environmental Monitoring</span><b>11</b></div><div class="det"><label class="opt algo" data-k="spanduk"><input type="checkbox" name="algoritma" value="Prohibited Banner Detection"><span>Prohibited Banner Detection</span></label><label class="opt algo" data-k="api kebakaran"><input type="checkbox" name="algoritma" value="Fire Extinguisher Location Detection"><span>Fire Extinguisher Location Detection</span></label><label class="opt algo" data-k="api kebakaran"><input type="checkbox" name="algoritma" value="Fire Lane Obstruction Detection"><span>Fire Lane Obstruction Detection</span></label><label class="opt algo" data-k="api kebakaran"><input type="checkbox" name="algoritma" value="Open Fire Detection"><span>Open Fire Detection</span></label><label class="opt algo" data-k=""><input type="checkbox" name="algoritma" value="Floating Object Detection"><span>Floating Object Detection</span></label><label class="opt algo" data-k=""><input type="checkbox" name="algoritma" value="Flammable Material Storage Detection"><span>Flammable Material Storage Detection</span></label><label class="opt algo" data-k="sampah"><input type="checkbox" name="algoritma" value="Trash Pile Detection"><span>Trash Pile Detection</span></label><label class="opt algo" data-k="sampah"><input type="checkbox" name="algoritma" value="Trash Bin Overflow"><span>Trash Bin Overflow</span></label><label class="opt algo" data-k="rokok asap"><input type="checkbox" name="algoritma" value="Smoke Detection"><span>Smoke Detection</span></label><label class="opt algo" data-k="air banjir"><input type="checkbox" name="algoritma" value="Water Gauge Water Level Measurement"><span>Water Gauge Water Level Measurement</span></label><label class="opt algo" data-k="pintu jendela"><input type="checkbox" name="algoritma" value="Door and Window Status Detection"><span>Door and Window Status Detection</span></label></div></div></div>
+      <p class="empty" id="kosong" hidden>Tidak ada algoritma yang cocok. Tuliskan kebutuhan Anda di bagian berikutnya.</p>
     </section>
 
     <section class="card">
@@ -245,10 +263,31 @@ button.go[disabled]{opacity:.6;cursor:wait}
      Isi dengan URL webhook untuk tujuan lain. Kosong = mode pratinjau, tidak mengirim. */
   var SUBMIT_URL = "https://script.google.com/macros/s/AKfycby1B2x5H0Xks5yPfv5Qx2YJ-CUb3w5fjJPEuCKdU9iP069MG2_vx-sAD4NiyK8kgqEf/exec";
 
-  var det = document.getElementById("det");
-  var count = document.getElementById("count");
-  det.addEventListener("change", function(){
-    count.textContent = det.querySelectorAll("input:checked").length + " dipilih";
+  var box = document.getElementById("algos"), count = document.getElementById("count");
+  var cari = document.getElementById("cari"), kosong = document.getElementById("kosong");
+  var chips = document.querySelectorAll(".chip"), filt = "all";
+  function norm(t){ return (t||"").toLowerCase(); }
+  function apply(){
+    var q = norm(cari.value).trim(), any = false;
+    box.querySelectorAll(".seg").forEach(function(seg){
+      var show = 0;
+      seg.querySelectorAll(".algo").forEach(function(a){
+        var okSeg = filt === "all" || seg.getAttribute("data-seg") === filt;
+        var okQ = !q || norm(a.textContent).indexOf(q) > -1 || norm(a.getAttribute("data-k")).indexOf(q) > -1;
+        a.hidden = !(okSeg && okQ); if(!a.hidden) show++;
+      });
+      seg.hidden = show === 0; if(show) any = true;
+    });
+    kosong.hidden = any;
+  }
+  cari.addEventListener("input", apply);
+  chips.forEach(function(c){ c.addEventListener("click", function(){
+    filt = c.getAttribute("data-f");
+    chips.forEach(function(x){ var on = x === c; x.classList.toggle("on", on); x.setAttribute("aria-pressed", on); });
+    apply();
+  }); });
+  box.addEventListener("change", function(){
+    count.textContent = box.querySelectorAll("input:checked").length + " dipilih";
   });
 
   var f = document.getElementById("f"), btn = document.getElementById("btn"), err = document.getElementById("err");
