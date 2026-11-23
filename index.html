@@ -24,10 +24,10 @@ body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--f-body);margin:0;
 h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0}
 .top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:20px;flex-wrap:wrap}
 .brand{font-family:var(--f-display);font-weight:700;font-size:17px;letter-spacing:.01em}
-.brand span{background:var(--accent2);color:var(--accent);padding:0 5px;border-radius:3px}
 .tag{font:500 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .hero{display:grid;grid-template-columns:1.25fr 1fr;gap:28px;align-items:center;padding-block:12px 28px}
 .hero h1{font-size:clamp(28px,5.4vw,42px);line-height:1.08;font-weight:700;letter-spacing:-.01em}
+.hero h1 .highlight{background:#302927;color:#F2C85B;padding:0 5px;border-radius:3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 .hero p{color:var(--muted);margin:14px 0 0;max-width:46ch}
 .facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 .facts span{font:500 12px var(--f-mono);border:1px solid var(--line);background:var(--surface);padding:5px 10px;border-radius:4px}
@@ -102,13 +102,13 @@ button.go[disabled]{opacity:.6;cursor:wait}
 
 <div class="wrap">
   <header class="top">
-    <div class="brand">Gandrung <span>Media</span> Corp</div>
+    <div class="brand">Gandrung Media Corp</div>
     <div class="tag">Asesmen Pelanggan</div>
   </header>
 
   <section class="hero">
     <div>
-      <h1>Ceritakan kebutuhan CCTV Anda. Kami siapkan rekomendasi awalnya.</h1>
+      <h1>Ceritakan kebutuhan <span class="highlight">CCTV</span> Anda. Kami siapkan rekomendasi awalnya.</h1>
       <p>Isian singkat sekitar 5 menit untuk membantu tim Gandrung Media Corp memahami lokasi, jumlah kamera, dan algoritma AI yang Anda perlukan pada produk Superintelligent CCTV.</p>
       <div class="facts"><span>± 5 menit</span><span>Tanpa biaya</span><span>Sesuai UU PDP</span></div>
     </div>
